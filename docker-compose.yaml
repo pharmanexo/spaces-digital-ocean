@@ -1,0 +1,37 @@
+version: '2'
+services:
+  spaces-do_app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - uid=${UID}
+        - user=${USER}
+    image: spaces-do
+    container_name: spaces-do-web
+    restart: always
+    working_dir: /var/www
+    user: ${UID}:${UID}
+    command:
+      - /usr/local/bin/execute.sh
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/php74/php.ini:/usr/local/etc/php/php.ini
+      - ./docker-compose/php74/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    networks:
+      - spaces-do-network
+  spaces-do_nginx:
+    image: nginx:1.25.3
+    container_name: spaces-do-nginx
+    restart: always
+    ports:
+      - 8087:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - spaces-do-network
+
+networks:
+  spaces-do-network:
+    driver: bridge
